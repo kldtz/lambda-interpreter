@@ -60,17 +60,18 @@ class Parser(lexer: Lexer):
  * Returns dot language representation of an expression.
  */
 def toDot(expression: Expression): String =
-  "digraph graphname {\n0 [label=Root];\n"+ dot(expression, 0, 1).mkString("\n") + "\n}"
+  "digraph graphname {\nnode [style=filled];\n0 [label=Root];\n"
+    + dot(expression, 0, 1).mkString("\n") + "\n}"
 
 private def dot(expression: Expression, parent:Int, id: Int): List[String] = expression match
   case variable: Variable => s"$id [label=${variable.name}];" :: s"$parent -> $id;" :: Nil
   case abstraction: Abstraction =>  {
     val param = dot(abstraction.param, id, id+1)
     val body = dot(abstraction.body, id, id+param.length/2 + 1)
-    s"$id [label=Abstraction];" :: s"$parent -> $id" :: (param ++ body)
+    s"$id [label=Abstraction, fillcolor=darkseagreen];" :: s"$parent -> $id" :: (param ++ body)
   }
   case application: Application => {
     val left = dot(application.left, id, id+1)
     val right = dot(application.right, id, id+left.length/2 + 1)
-    s"$id [label=Application];" :: s"$parent -> $id" :: (left ++ right)
+    s"$id [label=Application, fillcolor=burlywood];" :: s"$parent -> $id" :: (left ++ right)
   }
