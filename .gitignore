@@ -1,0 +1,7 @@
+# IntelliJ
+.idea
+# Scala output
+out/
+# Test output
+test.dot
+test.png
