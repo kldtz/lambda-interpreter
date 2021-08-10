@@ -5,9 +5,9 @@ import scala.sys.error
 
 trait Expression
 
-case class Variable(name: String, start: Int) extends Expression
+case class Variable(name: String, start: Int, dbi: Int) extends Expression
 
-case class Abstraction(param: Variable, body: Expression, start: Int) extends Expression
+case class Abstraction(body: Expression, start: Int) extends Expression
 
 case class Application(left: Expression, right: Expression, start: Int) extends Expression
 
@@ -16,6 +16,7 @@ case class Application(left: Expression, right: Expression, start: Int) extends 
  */
 class Parser(lexer: Lexer):
   private var lex = lexer
+  private var binders: List[String] = Nil
 
   /**
    * Returns AST or throws syntax error.
@@ -36,16 +37,18 @@ class Parser(lexer: Lexer):
 
   private def variable(): Variable =
     val t = lex.next()
-    Variable(t.text, t.start)
+    Variable(t.text, t.start, binders.indexOf(t.text) + 1)
 
   private def abstraction(): Abstraction =
     val start = lex.next().start
-    val v = variable()
+    val v = lex.next()
+    binders = v.text :: binders
     val dot = lex.next()
     if dot.typ != Token.Type.Dot then
       error(s"Syntax error in abstraction at position ${dot.start}!")
     val e = expression()
-    Abstraction(v, e, start)
+    binders = binders.drop(1)
+    Abstraction(e, start)
 
   private def application(): Application =
     val start = lex.next().start
@@ -64,14 +67,14 @@ def toDot(expression: Expression): String =
     + dot(expression, 0, 1).mkString("\n") + "\n}"
 
 private def dot(expression: Expression, parent:Int, id: Int): List[String] = expression match
-  case variable: Variable => s"$id [label=${variable.name}];" :: s"$parent -> $id;" :: Nil
-  case abstraction: Abstraction =>  {
-    val param = dot(abstraction.param, id, id+1)
-    val body = dot(abstraction.body, id, id+param.length/2 + 1)
-    s"$id [label=Abstraction, fillcolor=darkseagreen];" :: s"$parent -> $id" :: (param ++ body)
-  }
-  case application: Application => {
+  case variable: Variable =>
+    val label = if variable.dbi == 0 then variable.name else variable.dbi
+    s"$id [label=${label}];" :: s"$parent -> $id;" :: Nil
+  case abstraction: Abstraction =>
+    //val param = dot(abstraction.param, id, id+1)
+    val body = dot(abstraction.body, id, id + 1)
+    s"$id [label=Abstraction, fillcolor=darkseagreen];" :: s"$parent -> $id" :: body
+  case application: Application =>
     val left = dot(application.left, id, id+1)
     val right = dot(application.right, id, id+left.length/2 + 1)
     s"$id [label=Application, fillcolor=burlywood];" :: s"$parent -> $id" :: (left ++ right)
-  }

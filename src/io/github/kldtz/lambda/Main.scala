@@ -5,8 +5,13 @@ import java.nio.file.{Files, Paths}
 import scala.language.postfixOps
 import scala.sys.process._
 
-@main def main() =
-  val ast = Parser(Lexer(raw"(\x.\y.(\z.z x) a)")).parse()
+def generateTree(source: String, name: String) =
+  val ast = Parser(Lexer(source)).parse()
   val dotGraph = toDot(ast)
-  Files.write(Paths.get("test.dot"), dotGraph.getBytes(StandardCharsets.UTF_8))
-  "dot test.dot -Tpng -o test.png" !
+  Files.write(Paths.get(s"$name.dot"), dotGraph.getBytes(StandardCharsets.UTF_8))
+  s"dot $name.dot -Tpng -o $name.png" !
+
+
+@main def main() =
+  generateTree(raw"(\x.\y.(\z.z x) a)", "1")
+  generateTree(raw"\z.(\y.(y \x.x) \x.(z x))", "dbi-example")
