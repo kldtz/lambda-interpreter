@@ -3,14 +3,16 @@ package io.github.kldtz.lambda
 /**
  * Lexer that provides peek() and next() methods to iterate over tokens.
  */
-class Lexer(source: String):
+class Lexer(source: String) extends Iterator[Token]:
   private val tokens = Lexer.tokenize(source)
   private var i = 0
 
   def peek(): Token = tokens(i)
 
+  def hasNext() = i < tokens.length
+
   def next(): Token =
-    if i >= tokens.length then
+    if !hasNext() then
       Token(Token.Type.EOF, "EOF", i)
     else
       val token = tokens(i)
