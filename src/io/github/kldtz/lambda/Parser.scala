@@ -5,11 +5,11 @@ import scala.sys.error
 
 trait Expression
 
-case class Variable(name: String, start: Int, dbi: Int) extends Expression
+case class Variable(name: String, dbi: Int) extends Expression
 
-case class Abstraction(body: Expression, start: Int) extends Expression
+case class Abstraction(body: Expression) extends Expression
 
-case class Application(left: Expression, right: Expression, start: Int) extends Expression
+case class Application(left: Expression, right: Expression) extends Expression
 
 /**
  * Parser that takes a lexer object and produces an AST.
@@ -37,7 +37,7 @@ class Parser(lexer: Lexer):
 
   private def variable(): Variable =
     val t = lex.next()
-    Variable(t.text, t.start, binders.indexOf(t.text) + 1)
+    Variable(t.text, binders.indexOf(t.text) + 1)
 
   private def abstraction(): Abstraction =
     val start = lex.next().start
@@ -48,7 +48,7 @@ class Parser(lexer: Lexer):
       error(s"Syntax error in abstraction at position ${dot.start}!")
     val e = expression()
     binders = binders.drop(1)
-    Abstraction(e, start)
+    Abstraction(e)
 
   private def application(): Application =
     val start = lex.next().start
@@ -57,7 +57,7 @@ class Parser(lexer: Lexer):
     val rpar = lex.next()
     if rpar.typ != Token.Type.RPar then
       error(s"Syntax error in application at position ${rpar.start}!")
-    Application(e1, e2, start)
+    Application(e1, e2)
 
 /**
  * Returns dot language representation of an expression.
@@ -66,7 +66,7 @@ def toDot(expression: Expression): String =
   "digraph graphname {\nnode [style=filled];\n0 [label=Root];\n"
     + dot(expression, 0, 1).mkString("\n") + "\n}"
 
-private def dot(expression: Expression, parent:Int, id: Int): List[String] = expression match
+private def dot(expression: Expression, parent: Int, id: Int): List[String] = expression match
   case variable: Variable =>
     val label = if variable.dbi == 0 then variable.name else variable.dbi
     s"$id [label=${label}];" :: s"$parent -> $id;" :: Nil
@@ -75,6 +75,6 @@ private def dot(expression: Expression, parent:Int, id: Int): List[String] = exp
     val body = dot(abstraction.body, id, id + 1)
     s"$id [label=Abstraction, fillcolor=darkseagreen];" :: s"$parent -> $id" :: body
   case application: Application =>
-    val left = dot(application.left, id, id+1)
-    val right = dot(application.right, id, id+left.length/2 + 1)
+    val left = dot(application.left, id, id + 1)
+    val right = dot(application.right, id, id + left.length / 2 + 1)
     s"$id [label=Application, fillcolor=burlywood];" :: s"$parent -> $id" :: (left ++ right)
