@@ -1,6 +1,6 @@
 package io.github.kldtz.lambda
 
-object Interpreter {
+object Interpreter:
 
   private def substitute(a: Abstraction, e: Expression, depth: Int = 1): Expression = e match {
     case Variable(name, dbi) if dbi == depth => a
@@ -18,4 +18,3 @@ object Interpreter {
     }
     case e => e
   }
-}

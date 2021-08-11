@@ -18,7 +18,8 @@ def generateTree(source: String, name: String): Expression =
 
 
 @main def main() =
-  generateTree(raw"(\x.\y.(\z.z x) a)", "1")
-  val ast = generateTree(raw"(\y.(y \x.x) \x.(z x))", "dbi-example")
-  val res = Interpreter.eval(ast)
-  generateGraph(toDot(res), "reduced")
+  //generateTree(raw"(\x.\y.(\z.z x) a)", "1")
+  //val ast = generateTree(raw"(\y.(y \x.x) \x.(z x))", "dbi-example")
+  //val res = Interpreter.eval(ast)
+  //generateGraph(toDot(res), "reduced")
+  Repl.startRepl()

@@ -5,11 +5,14 @@ import scala.sys.error
 
 trait Expression
 
-case class Variable(name: String, dbi: Int) extends Expression
+case class Variable(name: String, dbi: Int) extends Expression:
+  override def toString: String = dbi.toString
 
-case class Abstraction(body: Expression) extends Expression
+case class Abstraction(body: Expression) extends Expression:
+  override def toString: String = s"λ.$body"
 
-case class Application(left: Expression, right: Expression) extends Expression
+case class Application(left: Expression, right: Expression) extends Expression:
+  override def toString: String = s"($left $right)"
 
 /**
  * Parser that takes a lexer object and produces an AST.
