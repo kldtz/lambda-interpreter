@@ -1,40 +1,25 @@
 package io.github.kldtz.lambda
 
+import scala.util.matching.Regex.Match
+
 /**
  * Lexer that provides peek() and next() methods to iterate over tokens.
  */
-class Lexer(source: String) extends Iterator[Token]:
-  private val tokens = Lexer.tokenize(source)
-  private var i = 0
-
-  def peek(): Token = tokens(i)
-
-  def hasNext() = i < tokens.length
-
-  def next(): Token =
-    if !hasNext() then
-      Token(Token.Type.EOF, "EOF", i)
-    else
-      val token = tokens(i)
-      i += 1
-      token
-
 object Lexer:
   val Whitespace = raw"\s".r
+  val TokenPattern = raw"λ|\\|\.|\(|\)|[a-zA-Z_\-]+".r
 
-  private def readChar(c: Char, i: Int): Token = c match
-    case 'λ' | '\\' => Token(Token.Type.Lambda, c.toString, i)
-    case '.' => Token(Token.Type.Dot, c.toString, i)
-    case '(' => Token(Token.Type.LPar, c.toString, i)
-    case ')' => Token(Token.Type.RPar, c.toString, i)
-    case c => Token(Token.Type.Ident, c.toString, i)
-
-  private def isNotWhitespace(c: Char, @annotation.unused i: Int): Boolean =
-    !Whitespace.matches(c.toString)
+  private def readToken(tokenMatch: Match): Token =
+    tokenMatch.group(0) match
+    case "λ" | "\\" => Token(Token.Type.Lambda, "λ", tokenMatch.start)
+    case "." => Token(Token.Type.Dot, ".", tokenMatch.start)
+    case "(" => Token(Token.Type.LPar, "(", tokenMatch.start)
+    case ")" => Token(Token.Type.RPar, ")", tokenMatch.start)
+    case c => Token(Token.Type.Ident, c, tokenMatch.start)
 
   /**
    * Splits source string into tokens.
    */
-  def tokenize(source: String): Seq[Token] =
-    source.zipWithIndex.filter(isNotWhitespace).map(readChar)
+  def tokenize(source: String): Iterator[Token] =
+    TokenPattern.findAllMatchIn(source).map(readToken)
 

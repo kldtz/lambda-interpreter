@@ -13,4 +13,3 @@ object Token:
     case RPar
     case Dot
     case Ident
-    case EOF

@@ -5,20 +5,20 @@ import scala.sys.error
 
 trait Expression
 
-case class Variable(name: String, dbi: Int) extends Expression:
+case class Variable(name: String, dbi: Int) extends Expression :
   override def toString: String = dbi.toString
 
-case class Abstraction(body: Expression) extends Expression:
+case class Abstraction(body: Expression) extends Expression :
   override def toString: String = s"λ.$body"
 
-case class Application(left: Expression, right: Expression) extends Expression:
+case class Application(left: Expression, right: Expression) extends Expression :
   override def toString: String = s"($left $right)"
 
 /**
  * Parser that takes a lexer object and produces an AST.
  */
-class Parser(lexer: Lexer):
-  private var lex = lexer
+class Parser(tokens: Iterator[Token]):
+  private var lex = tokens.buffered
   private var binders: List[String] = Nil
 
   /**
@@ -26,17 +26,18 @@ class Parser(lexer: Lexer):
    */
   def parse(): Expression =
     val ast = expression()
-    val eof = lex.next()
-    if eof.typ != Token.Type.EOF then
-      error(s"Syntax error: unexpected token ${eof.text} at ${eof.start}!")
+    if lex.hasNext then
+      val n = lex.next()
+      error(s"Syntax error: unexpected token ${n.text} at ${n.start}!")
     else
       ast
 
-  private def expression(): Expression = lex.peek().typ match
-    case Token.Type.Lambda => abstraction()
-    case Token.Type.LPar => application()
-    case Token.Type.Ident => variable()
-    case Token.Type.EOF => error("Syntax error: premature EOF!")
+  private def expression(): Expression =
+    if !lex.hasNext then error("Syntax error: premature EOF!")
+    lex.head.typ match
+      case Token.Type.Lambda => abstraction()
+      case Token.Type.LPar => application()
+      case Token.Type.Ident => variable()
 
   private def variable(): Variable =
     val t = lex.next()

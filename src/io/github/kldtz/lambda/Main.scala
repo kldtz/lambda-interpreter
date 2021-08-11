@@ -11,7 +11,7 @@ def generateGraph(dotGraph: String, name: String) =
   s"dot $name.dot -Tpng -o $name.png" !
 
 def generateTree(source: String, name: String): Expression =
-  val ast = Parser(Lexer(source)).parse()
+  val ast = Parser(Lexer.tokenize(source)).parse()
   val dotGraph = toDot(ast)
   generateGraph(dotGraph, name)
   ast
@@ -19,7 +19,8 @@ def generateTree(source: String, name: String): Expression =
 
 @main def main() =
   //generateTree(raw"(\x.\y.(\z.z x) a)", "1")
-  //val ast = generateTree(raw"(\y.(y \x.x) \x.(z x))", "dbi-example")
+  //val ast = generateTree(raw"(\y.(y \x.x) \x.(zeit x))", "dbi-example")
   //val res = Interpreter.eval(ast)
   //generateGraph(toDot(res), "reduced")
+
   Repl.startRepl()

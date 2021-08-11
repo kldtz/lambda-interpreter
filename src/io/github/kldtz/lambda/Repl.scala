@@ -8,6 +8,6 @@ object Repl:
       print("> ")
       val line = readLine()
       if line.equals("exit") then return
-      val ast = Parser(Lexer(line)).parse()
+      val ast = Parser(Lexer.tokenize(line)).parse()
       val res = Interpreter.eval(ast)
       println(s"$res")
