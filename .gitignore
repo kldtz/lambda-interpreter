@@ -1,9 +1,11 @@
 # IntelliJ
 .idea
+*.iml
 # Scala output
 out/
 target/
 project/target
+.bsp
 # Test output
 *.dot
 *.png
