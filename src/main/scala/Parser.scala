@@ -1,4 +1,4 @@
-package io.github.kldtz.lambda
+package main.scala
 
 import scala.::
 import scala.sys.error
@@ -38,6 +38,7 @@ class Parser(tokens: Iterator[Token]):
       case Token.Type.Lambda => abstraction()
       case Token.Type.LPar => application()
       case Token.Type.Ident => variable()
+      case t => error(s"Unexpected token of type $t at position ${lex.next().start}")
 
   private def variable(): Variable =
     val t = lex.next()

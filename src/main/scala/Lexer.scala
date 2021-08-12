@@ -1,12 +1,11 @@
-package io.github.kldtz.lambda
+package main.scala
 
 import scala.util.matching.Regex.Match
 
 /**
- * Lexer that provides peek() and next() methods to iterate over tokens.
+ * Lexer that splits source into tokens.
  */
 object Lexer:
-  val Whitespace = raw"\s".r
   val TokenPattern = raw"λ|\\|\.|\(|\)|[a-zA-Z_\-]+".r
 
   private def readToken(tokenMatch: Match): Token =

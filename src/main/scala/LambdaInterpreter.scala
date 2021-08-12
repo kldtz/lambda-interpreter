@@ -1,4 +1,4 @@
-package io.github.kldtz.lambda
+package main.scala
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}

@@ -1,4 +1,4 @@
-package io.github.kldtz.lambda
+package main.scala
 
 case class Token(
                   typ: Token.Type,

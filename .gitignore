@@ -2,6 +2,8 @@
 .idea
 # Scala output
 out/
+target/
+project/target
 # Test output
 *.dot
 *.png
