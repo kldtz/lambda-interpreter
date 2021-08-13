@@ -30,8 +30,8 @@ object Interpreter:
   private def eval(e: Expression): Expression = e match {
     case Application(left, right) => (left, right) match {
       case (Abstraction(b), right: Abstraction) => eval(substitute(right, b))
-      case (Abstraction(b), right) => Application(left, eval(right))
-      case (left, right) => Application(eval(left), right)
+      case (Abstraction(b), right) => eval(Application(left, eval(right)))
+      case (left, right) => eval(Application(eval(left), right))
     }
     case e => e
   }
