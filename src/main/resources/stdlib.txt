@@ -1,0 +1,9 @@
+# Boolean arithmetic
+# Church Booleans
+TRUE = \a.\b.a
+FALSE = \a.\b.b
+# Logical operators and control structures
+AND = \p.\q.((p q) p)
+OR = \p.\q.((p p) q)
+NOT = \p.\a.\b.((p b) a)
+IF = \p.\a.\b.((p a) b)
