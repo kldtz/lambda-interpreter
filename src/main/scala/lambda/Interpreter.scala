@@ -1,9 +1,16 @@
-package main.scala
+package lambda
 
+import scala.collection.mutable.HashMap
 import scala.collection.AbstractMap
 import scala.sys.error
 
 object Interpreter:
+
+  def eval(source: String, ctx: AbstractMap[String, Expression] = HashMap()): Expression =
+    eval(Interpreter.eval(Parser(Lexer.tokenize(source)).parse(), ctx))
+
+  def eval(e: Expression, ctx: AbstractMap[String, Expression]): Expression =
+    eval(replUnboundVars(e, ctx))
 
   private def substitute(a: Expression, e: Expression, depth: Int = 1): Expression = e match {
     case Variable(name, dbi) if dbi == depth => a
@@ -22,9 +29,6 @@ object Interpreter:
     case Application(l, r) => Application(replUnboundVars(l, ctx), replUnboundVars(r, ctx))
     case v => v
   }
-
-  def eval(e: Expression, ctx: AbstractMap[String, Expression]): Expression =
-    eval(replUnboundVars(e, ctx))
 
   // call by name
   private def eval(e: Expression): Expression = e match {

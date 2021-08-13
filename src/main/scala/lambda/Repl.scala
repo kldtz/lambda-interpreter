@@ -1,4 +1,4 @@
-package main.scala
+package lambda
 
 import scala.collection.mutable
 import scala.collection.mutable.HashMap
@@ -26,8 +26,8 @@ object Repl:
 
   private def eval(line: String, ctx: mutable.AbstractMap[String, Expression]): Expression = line match {
     case Assignment(v, e) =>
-      val value = Interpreter.eval(Parser(Lexer.tokenize(e)).parse(), ctx)
+      val value = Interpreter.eval(e, ctx)
       ctx.put(v, value)
       value
-    case l => Interpreter.eval(Parser(Lexer.tokenize(l)).parse(), ctx)
+    case l => Interpreter.eval(l, ctx)
   }

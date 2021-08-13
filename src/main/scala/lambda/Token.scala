@@ -1,4 +1,4 @@
-package main.scala
+package lambda
 
 case class Token(
                   typ: Token.Type,

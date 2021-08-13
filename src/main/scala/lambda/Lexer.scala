@@ -1,4 +1,4 @@
-package main.scala
+package lambda
 
 import scala.util.matching.Regex.Match
 

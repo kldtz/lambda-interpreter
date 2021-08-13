@@ -1,4 +1,4 @@
-package main.scala
+package lambda
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
