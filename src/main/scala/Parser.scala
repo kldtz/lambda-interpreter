@@ -28,7 +28,7 @@ class Parser(tokens: Iterator[Token]):
     val ast = expression()
     if lex.hasNext then
       val n = lex.next()
-      error(s"Syntax error: unexpected token ${n.text} at ${n.start}!")
+      error(s"Syntax error: unexpected token ${n.text} at position ${n.start}!")
     else
       ast
 

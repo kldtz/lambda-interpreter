@@ -23,4 +23,4 @@ def generateTree(source: String, name: String): Expression =
   //val res = Interpreter.eval(ast)
   //generateGraph(toDot(res), "reduced")
 
-  Repl.startRepl()
+  Repl.run()
