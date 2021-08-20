@@ -7,8 +7,7 @@ import scala.sys.error
 object Interpreter:
 
   def eval(source: String, ctx: AbstractMap[String, Expression] = HashMap()): Expression =
-    eta_reduce(beta_reduce(
-      Interpreter.eval(Parser(Lexer.tokenize(source)).parse(), ctx)))
+    Interpreter.eval(Parser(Lexer.tokenize(source)).parse(), ctx)
 
   def eval(e: Expression, ctx: AbstractMap[String, Expression]): Expression =
     eta_reduce(beta_reduce(replUnboundVars(e, ctx)))
