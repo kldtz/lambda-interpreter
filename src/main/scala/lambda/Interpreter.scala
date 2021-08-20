@@ -1,22 +1,23 @@
 package lambda
 
-import scala.collection.mutable.HashMap
 import scala.collection.AbstractMap
+import scala.collection.mutable.HashMap
 import scala.sys.error
 
 object Interpreter:
 
   def eval(source: String, ctx: AbstractMap[String, Expression] = HashMap()): Expression =
-    eval(Interpreter.eval(Parser(Lexer.tokenize(source)).parse(), ctx))
+    eta_reduce(beta_reduce(
+      Interpreter.eval(Parser(Lexer.tokenize(source)).parse(), ctx)))
 
   def eval(e: Expression, ctx: AbstractMap[String, Expression]): Expression =
-    eval(replUnboundVars(e, ctx))
+    eta_reduce(beta_reduce(replUnboundVars(e, ctx)))
 
-  private def substitute(a: Expression, e: Expression, depth: Int = 1): Expression = e match {
-    case Variable(name, dbi) if dbi == depth => a
-    case Abstraction(body) => Abstraction(substitute(a, body, depth + 1))
-    case Application(left, right) => Application(substitute(a, left, depth),
-      substitute(a, right, depth))
+  private def substitute(a: Expression, e: Expression, numBinders: Int = 1): Expression = e match {
+    case Variable(name, dbi) if dbi == numBinders => a
+    case Abstraction(body) => Abstraction(substitute(a, body, numBinders + 1))
+    case Application(left, right) => Application(substitute(a, left, numBinders),
+      substitute(a, right, numBinders))
     case v => v
   }
 
@@ -31,11 +32,27 @@ object Interpreter:
   }
 
   // call by name
-  private def eval(e: Expression): Expression = e match {
+  private def beta_reduce(e: Expression): Expression = e match {
     case Application(left, right) => (left, right) match {
-      case (Abstraction(b), right: Abstraction) => eval(substitute(right, b))
-      case (Abstraction(b), right) => eval(Application(left, eval(right)))
-      case (left, right) => eval(Application(eval(left), right))
+      case (Abstraction(b), right: Abstraction) => beta_reduce(substitute(right, b))
+      case (Abstraction(b), right) => beta_reduce(Application(left, beta_reduce(right)))
+      case (left, right) => beta_reduce(Application(beta_reduce(left), right))
     }
     case e => e
+  }
+
+  private def contains_var(e: Expression, numBinders: Int): Boolean = e match {
+    case Variable(name, dbi) if dbi == numBinders => true
+    case Abstraction(body) => contains_var(body, numBinders + 1)
+    case Application(left, right) =>
+      contains_var(left, numBinders) || contains_var(right, numBinders)
+    case v => false
+  }
+
+  private def eta_reduce(e: Expression): Expression = e match {
+    case Application(left, right) => Application(eta_reduce(left), eta_reduce(right))
+    case Abstraction(Application(Abstraction(b), v: Variable))
+      if v.dbi == 1 && !contains_var(b, 2) => Abstraction(eta_reduce(b))
+    case Abstraction(body) => Abstraction(eta_reduce(body))
+    case v => v
   }
