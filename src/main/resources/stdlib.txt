@@ -7,3 +7,7 @@ AND = \p.\q.((p q) p)
 OR = \p.\q.((p p) q)
 NOT = \p.\a.\b.((p b) a)
 IF = \p.\a.\b.((p a) b)
+
+# Church numerals
+ZERO = \f.\x.x
+SUCC = \n.\f.\x.(f ((n f) x))

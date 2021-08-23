@@ -23,7 +23,8 @@ object Repl:
   private def loadSource(filename: String): Iterator[(String, Expression)] =
     Source.fromResource(filename)
       .getLines()
-      .filter(l => !l.startsWith("#"))
+      .map(l => l.strip())
+      .filter(l => !l.isEmpty() && !l.startsWith("#"))
       .map(readAssignment)
 
   private def readAssignment(line: String): (String, Expression) = line match {
