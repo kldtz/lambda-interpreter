@@ -10,7 +10,7 @@ object Interpreter:
     Interpreter.eval(Parser(Lexer.tokenize(source)).parse(), ctx)
 
   def eval(e: Expression, ctx: AbstractMap[String, Expression]): Expression =
-    eta_reduce(beta_reduce(replUnboundVars(e, ctx)))
+    eta_reduce(nord_reduce(replUnboundVars(e, ctx)))
 
   private def substitute(a: Expression, e: Expression, numBinders: Int = 1): Expression = e match {
     case Variable(name, dbi) if dbi == numBinders => a
@@ -31,13 +31,22 @@ object Interpreter:
   }
 
   // call by name
-  private def beta_reduce(e: Expression): Expression = e match {
-    case Application(left, right) => (left, right) match {
-      case (Abstraction(b), right: Abstraction) => beta_reduce(substitute(right, b))
-      case (Abstraction(b), right) => beta_reduce(Application(left, beta_reduce(right)))
-      case (left, right) => beta_reduce(Application(beta_reduce(left), right))
+  private def cbn_reduce(e: Expression): Expression = e match {
+    case Application(left, right) => cbn_reduce(left) match {
+      case Abstraction(body) => cbn_reduce(substitute(right, body))
+      case e => Application(e, right)
     }
     case e => e
+  }
+
+  // normal order
+  private def nord_reduce(e: Expression): Expression = e match {
+    case Abstraction(body) => Abstraction(nord_reduce(body))
+    case Application(left, right) => cbn_reduce(left) match {
+      case Abstraction(body) => nord_reduce(substitute(right, body))
+      case e => Application(nord_reduce(e), nord_reduce(right))
+    }
+    case v => v
   }
 
   private def contains_var(e: Expression, numBinders: Int): Boolean = e match {
