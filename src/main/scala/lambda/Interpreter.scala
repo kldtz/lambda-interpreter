@@ -21,7 +21,7 @@ object Interpreter:
   }
 
   private def replUnboundVars(e: Expression, ctx: AbstractMap[String, Expression]): Expression = e match {
-    case Variable(name, dbi) if dbi == 0 => ctx.get(name) match {
+    case Variable(Some(name), dbi) => ctx.get(name) match {
       case Some(e) => e
       case None => error(s"Cannot resolve unbound variable '$name'")
     }

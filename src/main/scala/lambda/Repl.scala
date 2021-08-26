@@ -6,42 +6,59 @@ import scala.io.Source
 import scala.io.StdIn.readLine
 import scala.sys.error
 
-object Repl:
-  val Assignment = raw"([a-zA-Z_\-]+)\s*=\s*(.+)".r
+
+class Repl():
+
+  import Repl.*
+
+  private var ctx: mutable.AbstractMap[String, Expression] = HashMap()
+  private var symbols: mutable.AbstractMap[Expression, mutable.Set[String]] = HashMap()
 
   def run(): Unit =
-    var ctx: mutable.AbstractMap[String, Expression] = HashMap()
-    ctx ++= loadSource("stdlib.txt")
+    readSource("stdlib.txt").foreach(readAssignment)
     while true do
       print("> ")
-      val res = readLine() match {
+      val res = readLine() match
         case "exit" => return
-        case line => safeEval(line, ctx)
-      }
+        case line => safeEval(line)
       println(s"$res")
 
-  private def loadSource(filename: String): Iterator[(String, Expression)] =
+  private def readAssignment(line: String): Expression = line match
+    case AssignmentPattern(v, e) =>
+      val value = Interpreter.eval(e, ctx)
+      ctx.put(v, value)
+      symbols.getOrElseUpdate(value, new mutable.HashSet[String]()) += v
+      value
+    case l => error(s"Could not read source line '$l'")
+
+
+  private def safeEval(line: String): String =
+    try
+      val res = eval(line)
+      line match
+        case VariablePattern(v) => res.toString()
+        case l =>
+          symbols.getOrElse(res, List(res.toString)).mkString(", ")
+    catch
+      case e => e.toString()
+
+  private def eval(line: String): Expression = line match
+    case AssignmentPattern(v, e) =>
+      val value = Interpreter.eval(e, ctx)
+      ctx.put(v, value)
+      symbols.getOrElseUpdate(value, new mutable.HashSet[String]()) += v
+      value
+    case l => Interpreter.eval(l, ctx)
+
+
+object Repl:
+  val AssignmentPattern = raw"([a-zA-Z_\-]+)\s*=\s*(.+)".r
+  val VariablePattern = raw"^([a-zA-Z_\-]+)$$".r
+
+  def apply(): Repl = new Repl()
+
+  private def readSource(filename: String): Iterator[String] =
     Source.fromResource(filename)
       .getLines()
       .map(l => l.strip())
       .filter(l => !l.isEmpty() && !l.startsWith("#"))
-      .map(readAssignment)
-
-  private def readAssignment(line: String): (String, Expression) = line match {
-    case Assignment(v, e) => v -> Interpreter.eval(e)
-    case l => error(s"Could not read source line '$l'")
-  }
-
-  private def safeEval(line: String, ctx: mutable.AbstractMap[String, Expression]): String =
-    try
-      eval(line, ctx).toString()
-    catch
-      case e => e.toString()
-
-  private def eval(line: String, ctx: mutable.AbstractMap[String, Expression]): Expression = line match {
-    case Assignment(v, e) =>
-      val value = Interpreter.eval(e, ctx)
-      ctx.put(v, value)
-      value
-    case l => Interpreter.eval(l, ctx)
-  }

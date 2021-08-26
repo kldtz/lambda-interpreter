@@ -5,7 +5,7 @@ import scala.sys.error
 
 trait Expression
 
-case class Variable(name: String, dbi: Int) extends Expression :
+case class Variable(name: Option[String], dbi: Int) extends Expression :
   override def toString: String = dbi.toString
 
 case class Abstraction(body: Expression) extends Expression :
@@ -20,6 +20,7 @@ case class Application(left: Expression, right: Expression) extends Expression :
 class Parser(tokens: Iterator[Token]):
   private var lex = tokens.buffered
   private var binders: List[String] = Nil
+  private val test = " "
 
   /**
    * Returns AST or throws syntax error.
@@ -41,8 +42,10 @@ class Parser(tokens: Iterator[Token]):
       case t => error(s"Unexpected token of type $t at position ${lex.next().start}")
 
   private def variable(): Variable =
-    val t = lex.next()
-    Variable(t.text, binders.indexOf(t.text) + 1)
+    val text = lex.next().text
+    binders.indexOf(text) + 1 match
+      case 0 => Variable(Some(text), 0)
+      case i => Variable(None, i)
 
   private def abstraction(): Abstraction =
     val start = lex.next().start

@@ -11,3 +11,14 @@ IF = \p.\a.\b.((p a) b)
 # Church numerals
 ZERO = \f.\x.x
 SUCC = \n.\f.\x.(f ((n f) x))
+ISZERO = \n.((n \x.FALSE) TRUE)
+ONE = (SUCC ZERO)
+TWO = (SUCC (SUCC ZERO))
+THREE = (SUCC (SUCC (SUCC ZERO)))
+
+# Church pairs
+CONS = \x.\y.\f.((f x) y)
+CAR = \l.(l TRUE)
+CDR = \l.(l FALSE)
+NIL = FALSE
+ISNIL = \l.((l \h.\t.\b.FALSE) TRUE)
