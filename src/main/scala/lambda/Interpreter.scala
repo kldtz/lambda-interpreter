@@ -14,6 +14,7 @@ object Interpreter:
 
   private def substitute(a: Expression, e: Expression, numBinders: Int = 1): Expression = e match {
     case Variable(name, dbi) if dbi == numBinders => a
+    case Variable(name, dbi) if dbi > numBinders => Variable(name, dbi-1)
     case Abstraction(body) => Abstraction(substitute(a, body, numBinders + 1))
     case Application(left, right) => Application(substitute(a, left, numBinders),
       substitute(a, right, numBinders))
