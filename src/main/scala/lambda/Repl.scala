@@ -15,7 +15,7 @@ class Repl():
   private var symbols: mutable.AbstractMap[Expression, mutable.Set[String]] = HashMap()
 
   def run(): Unit =
-    readSource("stdlib.txt").foreach(eval)
+    readSource("stdlib.lambda").foreach(eval)
     while true do
       print("> ")
       val res = readLine() match
@@ -46,7 +46,7 @@ class Repl():
 
 object Repl:
   val AssignmentPattern = raw"([a-zA-Z_\-]+)\s*=\s*(.+)".r
-  val VariablePattern = raw"^([a-zA-Z_\-]+)$$".r
+  val VariablePattern = raw"^([a-zA-Z_\-]+)\s*\??$$".r
 
   def apply(): Repl = new Repl()
 
