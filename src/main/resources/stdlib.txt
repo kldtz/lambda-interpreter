@@ -13,8 +13,9 @@ ZERO = \f.\x.x
 SUCC = \n.\f.\x.(f ((n f) x))
 ISZERO = \n.((n \x.FALSE) TRUE)
 ONE = (SUCC ZERO)
-TWO = (SUCC (SUCC ZERO))
-THREE = (SUCC (SUCC (SUCC ZERO)))
+TWO = (SUCC ONE)
+THREE = (SUCC TWO)
+PRED = \n.\f.\x.(((n \g.\h.(h (g f))) \u.x) \u.u)
 
 # Church pairs
 CONS = \x.\y.\f.((f x) y)
@@ -22,3 +23,6 @@ CAR = \l.(l TRUE)
 CDR = \l.(l FALSE)
 NIL = FALSE
 ISNIL = \l.((l \h.\t.\b.FALSE) TRUE)
+
+# Combinators
+# Y = \f.(\x.(f (x x)) \x.(f (x x)))

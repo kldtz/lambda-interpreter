@@ -4,18 +4,29 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class InterpreterTest extends AnyFunSuite {
 
-  test("Eval ((and true) true) == true") {
+  test("((AND TRUE) TRUE) == TRUE") {
     val result = Interpreter.eval(raw"((\p.\q.((p q) p) \a.\b.a) \a.\b.a)")
-    result == Interpreter.eval(raw"\a.\b.a")
+    assert(result == Interpreter.eval(raw"\a.\b.a"))
   }
 
-  test("Eval ((and true) false) == false") {
+  test("((AND TRUE) FALSE) == FALSE") {
     val result = Interpreter.eval(raw"((\p.\q.((p q) p) \a.\b.a) \a.\b.b)")
-    result == Interpreter.eval(raw"\a.\b.b")
+    assert(result == Interpreter.eval(raw"\a.\b.b"))
   }
 
-  test( "Eval (SUCC ZERO) == ONE") {
+  test("(SUCC ZERO) == ONE") {
     val result = Interpreter.eval(raw"(\n.\f.\x.(f ((n f) x)) \f.\x.x)")
-    result == Interpreter.eval(raw"\f.\x.(f x)")
+    assert(result == Interpreter.eval(raw"\f.\x.(f x)"))
+  }
+
+  test("(SUCC ONE) == TWO") {
+    val result = Interpreter.eval(raw"(\n.\f.\x.(f ((n f) x)) \f.\x.(f x))")
+    assert(result == Interpreter.eval(raw"\f.\x.(f (f x))"))
+  }
+
+  test("(PRED TWO) == ONE") {
+    val result = Interpreter.eval(raw"(\n.\f.\x.(((n \g.\h.(h (g f))) \u.x) \u.u) " +
+      raw"(\n.\f.\x.(f ((n f) x)) (\n.\f.\x.(f ((n f) x)) \f.\x.x)))")
+    assert(result == Interpreter.eval(raw"(\n.\f.\x.(f ((n f) x)) \f.\x.x)"))
   }
 }

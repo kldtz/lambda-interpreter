@@ -10,14 +10,29 @@ object Interpreter:
     Interpreter.eval(Parser(Lexer.tokenize(source)).parse(), ctx)
 
   def eval(e: Expression, ctx: AbstractMap[String, Expression]): Expression =
-    eta_reduce(nord_reduce(replUnboundVars(e, ctx)))
+    nord_reduce(replUnboundVars(e, ctx))
+
+  def lazy_eval(source: String, ctx: AbstractMap[String, Expression] = HashMap()): Expression =
+    Interpreter.lazy_eval(Parser(Lexer.tokenize(source)).parse(), ctx)
+
+  // Call by name, no reduction under abstractions
+  def lazy_eval(e: Expression, ctx: AbstractMap[String, Expression]): Expression =
+    cbn_reduce(replUnboundVars(e, ctx))
 
   private def substitute(a: Expression, e: Expression, numBinders: Int = 1): Expression = e match {
-    case Variable(name, dbi) if dbi == numBinders => a
-    case Variable(name, dbi) if dbi > numBinders => Variable(name, dbi-1)
+    case Variable(name, dbi) if dbi == numBinders => adjustDbi(a, numBinders - 1)
+    case Variable(name, dbi) if dbi > numBinders => Variable(name, dbi - 1)
     case Abstraction(body) => Abstraction(substitute(a, body, numBinders + 1))
     case Application(left, right) => Application(substitute(a, left, numBinders),
       substitute(a, right, numBinders))
+    case v => v
+  }
+
+  private def adjustDbi(a: Expression, addedBinders: Int, depth: Int = 0): Expression = a match {
+    case Variable(name, dbi) if dbi > depth => Variable(name, dbi + addedBinders)
+    case Abstraction(body) => Abstraction(adjustDbi(body, addedBinders, depth + 1))
+    case Application(left, right) => Application(adjustDbi(left, addedBinders, depth),
+      adjustDbi(right, addedBinders, depth))
     case v => v
   }
 
