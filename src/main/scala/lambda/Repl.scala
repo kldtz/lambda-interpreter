@@ -15,22 +15,13 @@ class Repl():
   private var symbols: mutable.AbstractMap[Expression, mutable.Set[String]] = HashMap()
 
   def run(): Unit =
-    readSource("stdlib.txt").foreach(readAssignment)
+    readSource("stdlib.txt").foreach(eval)
     while true do
       print("> ")
       val res = readLine() match
         case "exit" => return
         case line => safeEval(line)
       println(s"$res")
-
-  private def readAssignment(line: String): Expression = line match
-    case AssignmentPattern(v, e) =>
-      val value = Interpreter.eval(e, ctx)
-      ctx.put(v, value)
-      symbols.getOrElseUpdate(value, new mutable.HashSet[String]()) += v
-      value
-    case l => error(s"Could not read source line '$l'")
-
 
   private def safeEval(line: String): String =
     try
