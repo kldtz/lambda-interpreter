@@ -1,7 +1,7 @@
 package lambda
 
-import scala.collection.mutable
 import scala.collection.mutable.HashMap
+import scala.collection.{AbstractMap, mutable}
 import scala.io.Source
 import scala.io.StdIn.readLine
 import scala.sys.error
@@ -33,13 +33,15 @@ class Repl():
     catch
       case e => e.toString()
 
-  private def eval(line: String): Expression = line match
-    case AssignmentPattern(v, e) =>
-      val value = Interpreter.eval(e, ctx)
-      ctx.put(v, value)
-      symbols.getOrElseUpdate(value, new mutable.HashSet[String]()) += v
-      value
-    case l => Interpreter.eval(l, ctx)
+  private def eval(line: String): Expression =
+    val eval_func: Interpreter.StringEval = if line.endsWith("?") then Interpreter.lazy_eval else Interpreter.eval
+    line match
+      case AssignmentPattern(v, e) =>
+        val value = eval_func(e, ctx)
+        ctx.put(v, value)
+        symbols.getOrElseUpdate(value, new mutable.HashSet[String]()) += v
+        value
+      case l => eval_func(l, ctx)
 
 
 object Repl:

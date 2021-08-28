@@ -6,6 +6,8 @@ import scala.sys.error
 
 object Interpreter:
 
+  type StringEval = (String, AbstractMap[String, Expression]) => Expression
+
   def eval(source: String, ctx: AbstractMap[String, Expression] = HashMap()): Expression =
     Interpreter.eval(Parser(Lexer.tokenize(source)).parse(), ctx)
 

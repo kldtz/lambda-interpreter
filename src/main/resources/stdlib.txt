@@ -25,4 +25,4 @@ NIL = FALSE
 ISNIL = \l.((l \h.\t.\b.FALSE) TRUE)
 
 # Combinators
-# Y = \f.(\x.(f (x x)) \x.(f (x x)))
+Y = \f.(\x.(f (x x)) \x.(f (x x))) ?
