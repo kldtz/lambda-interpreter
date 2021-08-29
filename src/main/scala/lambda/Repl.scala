@@ -25,13 +25,22 @@ class Repl():
 
   private def safeEval(line: String): String =
     try
-      val res = eval(line)
       line match
-        case VariablePattern(v) => res.toString()
+        case DelAssignmentPattern(v) => deleteVariableBinding(v)
+        case VariablePattern(v) => eval(line).toString()
         case l =>
+          val res = eval(line)
           symbols.getOrElse(res, List(res.toString)).mkString(", ")
     catch
       case e => e.toString()
+
+  private def deleteVariableBinding(varName: String): String =
+    ctx.remove(varName) match
+      case Some(e) =>
+        val names = symbols.getOrElse(e, mutable.HashSet()) -= varName
+        if names.isEmpty then symbols.remove(e)
+        s"Removed variable binding '$varName = $e'"
+      case None => s"Variable binding for '$varName' does not exist!"
 
   private def eval(line: String): Expression =
     val eval_func: Interpreter.StringEval = if line.endsWith("?") then Interpreter.lazy_eval else Interpreter.eval
@@ -46,6 +55,7 @@ class Repl():
 
 object Repl:
   val AssignmentPattern = raw"([a-zA-Z_\-]+)\s*=\s*(.+)".r
+  val DelAssignmentPattern = raw"([a-zA-Z_\-]+)\s*=\s*$$".r
   val VariablePattern = raw"^([a-zA-Z_\-]+)\s*\??$$".r
 
   def apply(): Repl = new Repl()
