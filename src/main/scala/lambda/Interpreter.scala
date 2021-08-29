@@ -12,7 +12,7 @@ object Interpreter:
     Interpreter.eval(Parser(Lexer.tokenize(source)).parse(), ctx)
 
   def eval(e: Expression, ctx: AbstractMap[String, Expression]): Expression =
-    nord_reduce(replUnboundVars(e, ctx))
+    eta_reduce(nord_reduce(replUnboundVars(e, ctx)))
 
   def lazy_eval(source: String, ctx: AbstractMap[String, Expression] = HashMap()): Expression =
     Interpreter.lazy_eval(Parser(Lexer.tokenize(source)).parse(), ctx)

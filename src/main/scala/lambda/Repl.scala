@@ -46,6 +46,7 @@ class Repl():
     val eval_func: Interpreter.StringEval = if line.endsWith("?") then Interpreter.lazy_eval else Interpreter.eval
     line match
       case AssignmentPattern(v, e) =>
+        deleteVariableBinding(v)
         val value = eval_func(e, ctx)
         ctx.put(v, value)
         symbols.getOrElseUpdate(value, new mutable.HashSet[String]()) += v
