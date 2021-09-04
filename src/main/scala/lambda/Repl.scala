@@ -2,8 +2,6 @@ package lambda
 
 import scala.collection.mutable.HashMap
 import scala.collection.{AbstractMap, mutable}
-import scala.io.Source
-import scala.io.StdIn.readLine
 import scala.sys.error
 
 
@@ -14,15 +12,7 @@ class Repl():
   private var ctx: mutable.AbstractMap[String, Expression] = HashMap()
   private var symbols: mutable.AbstractMap[Expression, mutable.Set[String]] = HashMap()
 
-  def run(): Unit =
-    while true do
-      print("> ")
-      val res = readLine() match
-        case "exit" => return
-        case line => safeEval(line)
-      println(s"$res")
-
-  private def safeEval(line: String): String =
+  def safeEval(line: String): String =
     try
       line match
         case DelAssignmentPattern(v) => deleteVariableBinding(v)
@@ -58,13 +48,42 @@ object Repl:
   val DelAssignmentPattern = raw"([a-zA-Z_\-]+)\s*=\s*$$".r
   val VariablePattern = raw"^([a-zA-Z_\-]+)\s*\??$$".r
 
+  val Source =
+    """
+      |# Boolean arithmetic
+      |# Church Booleans
+      |TRUE = \a.\b.a
+      |FALSE = \a.\b.b
+      |# Logical operators and control structures
+      |AND = \p.\q.((p q) p)
+      |OR = \p.\q.((p p) q)
+      |NOT = \p.\a.\b.((p b) a)
+      |IF = \p.\a.\b.((p a) b)
+      |
+      |# Church numerals
+      |ZERO = \f.\x.x
+      |SUCC = \n.\f.\x.(f ((n f) x))
+      |ISZERO = \n.((n \x.FALSE) TRUE)
+      |ONE = (SUCC ZERO)
+      |TWO = (SUCC ONE)
+      |THREE = (SUCC TWO)
+      |PRED = \n.\f.\x.(((n \g.\h.(h (g f))) \u.x) \u.u)
+      |
+      |# Church pairs
+      |CONS = \x.\y.\f.((f x) y)
+      |CAR = \l.(l TRUE)
+      |CDR = \l.(l FALSE)
+      |NIL = FALSE
+      |ISNIL = \l.((l \h.\t.\b.FALSE) TRUE)
+      |
+      |# Combinators
+      |Y = \f.(\x.(f (x x)) \x.(f (x x))) ?
+    """.stripMargin
+
   def apply(): Repl =
     var repl = new Repl()
-    readSource("stdlib.lambda").foreach(repl.eval)
-    repl
-
-  private def readSource(filename: String): Iterator[String] =
-    Source.fromResource(filename)
-      .getLines()
-      .map(l => l.strip())
+    Source.split("\n")
+      .map(l => l.trim())
       .filter(l => !l.isEmpty() && !l.startsWith("#"))
+      .foreach(repl.eval)
+    repl

@@ -1,0 +1,30 @@
+#console {
+    width: 800px;
+    height: 300px;
+    font-family: monospace;
+    padding: 5px 10px;
+    background-color: #333;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    word-break: break-all;
+}
+
+#output {
+    max-height: 270px;
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+#input {
+    border: none;
+    outline: none;
+    display: inline;
+}
+
+#demo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
