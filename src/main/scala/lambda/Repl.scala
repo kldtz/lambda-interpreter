@@ -67,7 +67,17 @@ object Repl:
       |ONE = (SUCC ZERO)
       |TWO = (SUCC ONE)
       |THREE = (SUCC TWO)
+      |FOUR = (SUCC THREE)
+      |FIVE = (SUCC FOUR)
+      |SIX = (SUCC FIVE)
+      |SEVEN = (SUCC SIX)
+      |EIGHT = (SUCC SEVEN)
+      |NINE = (SUCC EIGHT)
       |PRED = \n.\f.\x.(((n \g.\h.(h (g f))) \u.x) \u.u)
+      |PLUS = \m.\n.\f.\x.((m f) ((n f) x))
+      |MINUS = \m.\n.((n PRED) m)
+      |MULT = \m.\n.\f.\x.((m (n f)) x)
+      |EXP = \m.\n.\f.\x.(((n m) f) x)
       |
       |# Church pairs
       |CONS = \x.\y.\f.((f x) y)
