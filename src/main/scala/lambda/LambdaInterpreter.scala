@@ -35,8 +35,9 @@ private def setupUI(repl: Repl): Unit = {
   input_box.onkeyup = (e: dom.KeyboardEvent) => {
     // evaluate and print input if Enter key is pressed
     if (e.keyCode == 13) {
-      val res = repl.safeEval(input_box.textContent)
-      prependDiv(output, s"> ${input_box.textContent}")
+      val input = input_box.textContent.trim()
+      val res = repl.safeEval(input)
+      prependDiv(output, s"> ${input}")
       prependDiv(output, s"$res")
       input_box.textContent = ""
     }

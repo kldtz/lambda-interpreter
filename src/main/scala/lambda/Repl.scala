@@ -15,6 +15,7 @@ class Repl():
   def safeEval(line: String): String =
     try
       line match
+        case "." => ctx.keys.toList.sorted.mkString(", ")
         case DelAssignmentPattern(v) => deleteVariableBinding(v)
         case VariablePattern(v) => eval(line).toString()
         case l =>
