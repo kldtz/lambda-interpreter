@@ -2,6 +2,8 @@
 
 Lambda calculus interpreter with REPL implemented in Scala.
 
+Demo: https://verzettelung.com/21/09/01/
+
 ## Installation
 
 * [Install JDK and sbt](https://www.scala-sbt.org/1.x/docs/Setup.html)
